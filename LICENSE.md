@@ -2,6 +2,8 @@ The MIT License (MIT)
 
 Copyright (c) 2013-2014 Mark McGranaghan
 Portions copyright (c) 2013-2014 the [hk project contributors](https://github.com/heroku/hk/blob/master/LICENSE)
+Copyright (c) 2017 Peter Sanford
+
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

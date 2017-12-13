@@ -4,6 +4,8 @@
 distributed storage service designed to be fast, easy to install,
 and Unix-friendly. It's written in Go.
 
+This is a fork of https://github.com/mmcgrana/zk with improvements I wanted.
+
 ### Getting Started
 
 Install with:
@@ -94,10 +96,6 @@ The `zk` project borrows much of its CLI scaffolding and therefore
 CLI aesthetic from the [`hk`](https://github.com/heroku/hk) project.
 Like `hk`, `zk` is designed to behave like a standard Unix tool and
 be composed with other such tools.
-
-### Contributing
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### License
 
