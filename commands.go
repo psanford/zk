@@ -19,13 +19,14 @@ func servers() []string {
 }
 func connect() *zk.Conn {
 	svs := servers()
-	conn, _, err := zk.Connect(svs, time.Second)
+	conn, _, err := zk.Connect(svs, time.Second, zk.WithLogInfo(optDebugLog))
 	must(err)
 	return conn
 }
 
 var (
-	optWatch bool
+	optWatch    bool
+	optDebugLog bool
 )
 
 var cmdExists = &Command{
@@ -307,4 +308,8 @@ func init() {
 	cmdExists.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node presence before returning")
 	cmdGet.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node state before returning")
 	cmdChildren.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node children names before returning")
+
+	for _, cmd := range commands {
+		cmd.Flag.BoolVar(&optDebugLog, "debug", false, "Enable debug logging")
+	}
 }
