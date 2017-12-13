@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bgentry/pflag"
 	"io"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/bgentry/pflag"
 )
 
 type Command struct {

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/samuel/go-zookeeper/zk"
 	"os"
 	"sort"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/samuel/go-zookeeper/zk"
 )
 
 func servers() []string {
