@@ -262,7 +262,7 @@ func runDelete(cmd *Command, args []string) {
 }
 
 var cmdChildren = &Command{
-	Usage: "children <path> [--watch]",
+	Usage: "ls <path> [--watch]",
 	Short: "list node children",
 	Long: `
 Children lists the names of the children of the node at the given
@@ -271,7 +271,7 @@ in the names of given node's children before returning.
 
 Example:
 
-    $ zk children /people
+    $ zk ls /people
     alice
     bob
     fred`,
