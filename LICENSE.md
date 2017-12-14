@@ -2,6 +2,7 @@ The MIT License (MIT)
 
 Copyright (c) 2013-2014 Mark McGranaghan
 Portions copyright (c) 2013-2014 the [hk project contributors](https://github.com/heroku/hk/blob/master/LICENSE)
+Copyright (c) 2015 Funky Gao
 Copyright (c) 2017 Peter Sanford
 
 

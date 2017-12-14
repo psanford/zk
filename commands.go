@@ -25,9 +25,9 @@ func connect() *zk.Conn {
 }
 
 var (
-	optWatch    bool
-	optDebugLog bool
-	recursive   bool
+	optWatch     bool
+	optDebugLog  bool
+	optRecursive bool
 )
 
 var cmdExists = &Command{
@@ -305,7 +305,7 @@ func runChildren(cmd *Command, args []string) {
 	conn := connect()
 	defer conn.Close()
 	if !optWatch {
-		if recursive {
+		if optRecursive {
 			showChildrenRecursively(conn, path)
 			return
 		}
@@ -331,7 +331,7 @@ func init() {
 	cmdExists.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node presence before returning")
 	cmdGet.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node state before returning")
 	cmdChildren.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node children names before returning")
-	cmdChildren.Flag.BoolVarP(&recursive, "recursive", "R", false, "recursively list subdirectories encountered")
+	cmdChildren.Flag.BoolVarP(&optRecursive, "recursive", "R", false, "recursively list subdirectories encountered")
 
 	for _, cmd := range commands {
 		cmd.Flag.BoolVar(&optDebugLog, "debug", false, "Enable debug logging")
