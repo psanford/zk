@@ -224,8 +224,8 @@ func runSet(cmd *Command, args []string) {
 }
 
 var cmdDelete = &Command{
-	Usage: "delete <path> [version]",
-	Short: "delete node",
+	Usage: "rm <path> [version] [-R]",
+	Short: "rm node",
 	Long: `
 Delete removes the node at the given path. If a version is given,
 submits that version with the delete request for verification
@@ -234,11 +234,11 @@ current data regardless of its version.
 
 Examples:
 
-    $ zk delete /path
+    $ zk rm /path
 
     $ zk stat /path | grep Version
     Version:        7
-    $ zk delete /path 7`,
+    $ zk rm /path 7`,
 	Run: runDelete,
 }
 
@@ -246,7 +246,7 @@ func runDelete(cmd *Command, args []string) {
 	if !(len(args) == 1 || len(args) == 2) {
 		failUsage(cmd)
 	}
-	path := args[0]
+	path := cleanPath(args[0])
 	clobber := len(args) == 1
 	conn := connect()
 	defer conn.Close()
@@ -258,8 +258,34 @@ func runDelete(cmd *Command, args []string) {
 		must(err)
 		version = int32(versionParsed)
 	}
-	err := conn.Delete(path, version)
+	var err error
+	if optRecursive {
+		err = recursiveDelete(conn, path, version)
+	} else {
+		err = conn.Delete(path, version)
+	}
 	must(err)
+}
+
+func recursiveDelete(conn *zk.Conn, path string, version int32) error {
+	children, _, err := conn.Children(path)
+	if err != nil {
+		return err
+	}
+
+	for _, child := range children {
+		var childPath string
+		if path == "/" {
+			childPath = path + child
+		} else {
+			childPath = path + "/" + child
+		}
+		if err := recursiveDelete(conn, childPath, version); err != nil {
+			return err
+		}
+	}
+
+	return conn.Delete(path, version)
 }
 
 var cmdChildren = &Command{
@@ -279,34 +305,24 @@ Example:
 	Run: runChildren,
 }
 
-func showChildrenRecursively(conn *zk.Conn, path string) {
-	children, _, err := conn.Children(path)
-	if err != nil {
-		return
+func cleanPath(path string) string {
+	if len(path) > 1 && path[len(path)-1] == '/' {
+		path = path[:len(path)-1]
 	}
-
-	sort.Strings(children)
-	for _, child := range children {
-		if path == "/" {
-			outString("%s\n", path+child)
-			showChildrenRecursively(conn, path+child)
-		} else {
-			outString("%s\n", path+"/"+child)
-			showChildrenRecursively(conn, path+"/"+child)
-		}
-	}
+	return path
 }
 
 func runChildren(cmd *Command, args []string) {
 	if !(len(args) == 1) {
 		failUsage(cmd)
 	}
-	path := args[0]
+	path := cleanPath(args[0])
+
 	conn := connect()
 	defer conn.Close()
 	if !optWatch {
 		if optRecursive {
-			showChildrenRecursively(conn, path)
+			recursiveChildren(conn, path)
 			return
 		}
 		children, _, err := conn.Children(path)
@@ -327,11 +343,30 @@ func runChildren(cmd *Command, args []string) {
 	}
 }
 
+func recursiveChildren(conn *zk.Conn, path string) {
+	children, _, err := conn.Children(path)
+	if err != nil {
+		return
+	}
+
+	sort.Strings(children)
+	for _, child := range children {
+		if path == "/" {
+			outString("%s\n", path+child)
+			recursiveChildren(conn, path+child)
+		} else {
+			outString("%s\n", path+"/"+child)
+			recursiveChildren(conn, path+"/"+child)
+		}
+	}
+}
+
 func init() {
 	cmdExists.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node presence before returning")
 	cmdGet.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node state before returning")
 	cmdChildren.Flag.BoolVarP(&optWatch, "watch", "w", false, "watch for a change to node children names before returning")
 	cmdChildren.Flag.BoolVarP(&optRecursive, "recursive", "R", false, "recursively list subdirectories encountered")
+	cmdDelete.Flag.BoolVarP(&optRecursive, "recursive", "R", false, "recursively list subdirectories encountered")
 
 	for _, cmd := range commands {
 		cmd.Flag.BoolVar(&optDebugLog, "debug", false, "Enable debug logging")
